@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Guess The Colored Blocks</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="headingId"><h1>Guess The Colored Blocks</h1></div>
+    <h2 id="scoreId"></h2>
+    <h1 id="resultId"></h1>
+    <div id="tableId"></div>
+    <button id="replayId" onclick="window.location.reload()">Replay</button>
+
+    <script>
+        let set = new Set(); // to hold the cell ids for the no of patterns to be generated
+        let randomCellsSet = new Set(); // to hold all the cell ids of the pattern generated
+        let cellIndexArray = new Array(); //contains all the cell Ids of the table
+        let randomValidCellCount; // contains the count of the randomly generated valid cells
+        let cellsClickedCount; // tp track the no. of cells clicked
+        let score = 0; // to track score.
+
+
+        document.getElementById('scoreId').innerHTML = `Current Score : <span>${score}</span>`;
+        createTable();
+
+        function createTable() {
+            let noOfRows = Math.floor(Math.random() * 5) + 3; //random no. from 3 to 7
+            let noOfCols = Math.floor(Math.random() * 5) + 3;
+
+            let table = document.createElement('table');
+            cellIndexArray.splice(0, cellIndexArray.length);
+
+            for (let i = 0; i < noOfRows; i++) {
+                let row = table.insertRow(i);
+                for (let j = 0; j < noOfCols; j++) {
+                    let cell = row.insertCell(j);
+                    cell.setAttribute('id', i + '' + j);
+                    cellIndexArray.push(i + '' + j);
+                    setTimeout(function(){
+                        cell.addEventListener('click', checkClickedCells);
+                    }, 5000);
+                }
+            }
+
+            if (document.getElementById('tableId').childNodes.length) {
+                document.getElementById('tableId').replaceChild(table, document.getElementById('tableId').firstChild);
+            } else {
+                document.getElementById('tableId').appendChild(table);
+            }
+
+            // console.log(table.rows[0].cells[3]);
+
+            generateRandomCells(noOfRows, noOfCols);
+        }
+        
+        
+        function generateRandomCells(noOfRows, noOfCols) {
+            let totalPattens;
+            let totalCells = noOfCols * noOfRows;
+
+            if(totalCells >= 30){
+                totalPattens = 3;
+            }else if(totalCells < 30 && totalCells >= 16){
+                totalPattens = 2;
+            }else{
+                totalPattens = 1;
+            }
+
+            set.clear();
+            for (let i = 1; i <= totalPattens; i++) {
+                while (set.size < i) {
+                    let id = generateRandomCellId();
+                    set.add(id);
+                }
+            }
+
+            function generateRandomCellId() {
+                let randomRow = Math.floor(Math.random() * noOfRows);
+                let randomCol = Math.floor(Math.random() * noOfCols);
+
+                let id = randomRow + '' + randomCol;
+                return id;
+            }
+
+            console.log(...set);
+            
+            randomCellsSet.clear();
+            for(i = 0; i < set.size; i++){
+                let rowIndex = Number([...set][i].substr(0, 1));
+                let colIndex = Number([...set][i].substr(1));
+
+                let rowIndexOptions = [rowIndex - 1, rowIndex, rowIndex + 1];
+                let colIndexOptions = [colIndex - 1, colIndex, colIndex + 1];
+                
+                let subSet = new Set();
+                subSet.add(rowIndex + '' + colIndex); // adding the originally generated random cell which is there in the set
+
+                // console.log(subSet);
+                // restricting the count for the total cells around the cells in the set depending upon the totalpatterns
+                while(subSet.size <= totalPattens ){
+                    subSet.add(rowIndexOptions[Math.floor(Math.random() * 3)] + '' + colIndexOptions[Math.floor(Math.random() * 3)]);
+                    // subSet.add(Math.random());
+                }
+                
+                console.log(...subSet); // included invalid cell ids as well
+                
+                for (item of [...subSet]){
+                    randomCellsSet.add(item);
+                }
+
+                console.log(...randomCellsSet);
+                
+            }
+
+            let validCells = [...randomCellsSet].filter(function(value){
+                return cellIndexArray.indexOf(value) > 0;
+            })
+
+            console.log(validCells);
+
+            addClassToCellsGenerated(validCells);
+            randomValidCellCount = validCells.length; // set the count
+            cellsClickedCount = 0; //clearing the variable.
+        }
+
+        function addClassToCellsGenerated(validCells){
+            for(i = 0; i < validCells.length; i++){
+                document.getElementById(validCells[i]).classList.add('selectedCell');
+            }
+        }
+
+        function checkClickedCells(){ // event Listener to click cell.
+            // console.log(this.classList.contains('selectedCell'));
+            console.log(this);
+            if(this.classList.contains('selectedCell')){
+                cellsClickedCount++;
+                this.style.backgroundColor = 'red';
+                checkGameStatus();
+            }else{
+                document.getElementById('resultId').innerHTML = 'You Missed it!';
+                document.getElementById('resultId').style.transform = 'scaleY(1)';
+                document.getElementById('replayId').style.display = 'inline';
+                document.getElementById('scoreId').innerHTML = `<h1>Final Score : <span>${score}</span><h1>`;
+
+                for(i = 0; i < cellIndexArray.length; i++){
+                    document.getElementById(cellIndexArray[i]).removeEventListener('click', checkClickedCells);
+                }
+            }
+        }
+
+        function checkGameStatus(){
+            if(cellsClickedCount == randomValidCellCount){
+                document.getElementById('resultId').innerHTML = 'Nice Job!';
+                document.getElementById('resultId').style.transform = 'scaleY(1)';
+                setTimeout(function(){
+                    document.getElementById('resultId').style.transition = 'transform 2s';
+                    document.getElementById('resultId').style.transform = 'scaleY(0)';
+                }, 2000)
+                score++;
+                document.getElementById('scoreId').innerHTML = `Current Score : <span>${score}</span>`;
+                createTable();
+            }
+        }
+
+
+
+    </script>
+
+</body>
+
+</html>

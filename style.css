@@ -1,0 +1,56 @@
+table, tr, td{
+    border: 5px solid green;
+    border-style: inset;
+    margin-top: 20vw; 
+}
+td{
+    width: 2em;
+    height: 2rem;
+}
+table{
+    border-collapse: collapse;
+    margin: auto;
+    margin-top: 5vw;
+}
+#resultId{
+    height: 20px;
+}
+body{
+    text-align: center;
+    color: purple;
+    background-color: azure;
+}
+#headingId{
+    color: white;
+    background-color: black;
+    padding: 20px;
+    line-height: 20px;
+}
+span{
+    color: red;
+}
+button{
+    display: none;
+    height: 3em;
+    width: 8em;
+    background-color: olivedrab;
+    font-weight: 500;
+    margin-top: 10px;
+}
+
+td.selectedCell{
+    /* background-color: red; */
+    animation: animationColor 3s linear 2s backwards;
+}
+
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes animationColor {
+    from {background-color: red;}
+    to {background-color: none;}
+  }
+  
+  /* Standard syntax */
+  @keyframes animationColor {
+    from {background-color: red;}
+    to {background-color: none;}
+  }
